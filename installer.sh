@@ -49,7 +49,7 @@ function setup {
 	(Smalltalk at: #ConfigurationOfMetacello) load.
 
 	((Installer monticello) 
-		http: 'http://www.hpi.uni-potsdam.de/hirschfeld/squeaksource/bp2010h1'
+		http: '${REPOSITORY}'
 		user: '${USERNAME}'
 		password: '${PASSWORD}')	
 		installQuietly: '${CONFIG}'.
@@ -67,7 +67,7 @@ EOF
 
 function usage {
 	E_OPTERROR=65
-	echo "Usage: `basename $0` -u <USERNAME> -p <PASSWORD> -v <BUILD_VM_PATH> -c <METACELLO_CONFIGURATION>"
+	echo "Usage: `basename $0` -u <USERNAME> -p <PASSWORD> -v <BUILD_VM_PATH> -c <METACELLO_CONFIGURATION> -r <MONTICELLO_REPOSITORY>"
 	exit $E_OPTERROR	
 }
 
@@ -76,13 +76,14 @@ then
 	usage
 fi
 
-while getopts ":u:p:v:c:" OPTION
+while getopts ":u:p:v:c:r:" OPTION
 do
 	case $OPTION in
 		u) USERNAME="$OPTARG" ;;
 		p) PASSWORD="$OPTARG" ;;
 		v) VM_PATH="$OPTARG" ;;
 		c) CONFIG="$OPTARG" ;;
+		r) REPOSITORY="$OPTARG" ;;
 		*) usage ;;
 	esac
 done
