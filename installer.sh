@@ -95,22 +95,17 @@ setup
 
 DATE_STRING=`date +%Y%m%d`
 
-mkdir "orca_${DATE_STRING}"
-cd "orca_${DATE_STRING}"
+mkdir "lauritz_${DATE_STRING}"
+cd "lauritz_${DATE_STRING}"
 
 
 eval "mv $(ls ../*.image | head -1)" "Squeak.image"
 eval "mv $(ls ../*.changes | head -1)" "Squeak.changes"
 mv ../SqueakV41.sources ./
 
-git clone git@github.com:bp2010h1/orca.git
-cat <<EOF> INSTALL
-Move this content into your Resources directory.
-EOF
-
 cd ..
 
-tar cfz "../orca_${DATE_STRING}.tar.gz" "orca_${DATE_STRING}"
+tar cfz "../lauritz${DATE_STRING}.tar.gz" "lauritz${DATE_STRING}"
 
 cd ..
 rm -rf temp

@@ -1,6 +1,5 @@
 *~
-installer/custom_installer.sh
-installer/temp/*
-installer/*.tar.gz
-installer/.DS_Store
+custom_installer.sh
+temp/*
+*.tar.gz
 .DS_Store
