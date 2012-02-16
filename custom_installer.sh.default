@@ -1,10 +1,19 @@
 #!/bin/bash
 
-# Put your own values here
-USER="aUser"
-PW="aPw"
-VM="/aPath/to/vm"
-CONFIG="ConfigurationOf???" 
-REPOSITORY="http://www.address.com/Repository"
+### Configuration
 
-./installer.sh -u "$USER" -p "$PW" -v "$VM" -c "$CONFIG" -r "$REPOSITORY"
+# Path to your Squeak VM 
+VM="/path/to/vm"
+
+# Monticello repository and Credentials
+REPOSITORY="http://www.squeaksource.com/SQUEAKSOURCE_REPOSITORY"
+USER=""
+PW=""
+
+# Metacello configuration that configures the image to personal preferences
+CONFIG="ConfigurationOfLauritz" 
+
+### Installer execution
+
+# Add the parameterlesss '-a' switch to create an archive of the installed files
+`dirname $0`/installer.sh -u "$USER" -p "$PW" -v "$VM" -c "$CONFIG" -r "$REPOSITORY"

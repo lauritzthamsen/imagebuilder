@@ -11,7 +11,7 @@ function run {
       fi
    fi
    if [[ -e "${image_arg}.image" ]]; then
-      IMAGE="${image_arg}.image" # If an image file with that prefix exists, use it
+      IMAGE="${image_arg}.image" # Use prefixed image if it exists, use it
    fi
 
    if [[ -n $IMAGE ]]; then
@@ -19,7 +19,6 @@ function run {
    else
       eval "${VM_PATH}" "$(pwd)/$(ls Squeak*image | head -1)" "$args"
    fi
-
 }
 
 function download {
@@ -27,7 +26,7 @@ function download {
       echo "Downloading current trunk image"
       TRUNK="ftp://ftp.squeak.org/trunk/"
       SOURCES="ftp://ftp.squeak.org/sources_files/"
-      SQUEAK_IMAGE_FILES=$(curl ${TRUNK} | grep "Squeak.*zip" | tail -1 | awk '{print $NF}')
+      SQUEAK_IMAGE_FILES=$(curl ${TRUNK} | grep "Squeak[0-9]\.[0-9].*zip" | tail -1 | awk '{print $NF}')
       SQUEAK_SOURCES_FILE=$(curl ${SOURCES} | grep "sources.gz" | tail -1 | awk '{print $NF}')
       curl -O "${SOURCES}${SQUEAK_SOURCES_FILE}"
       curl -O "${TRUNK}${SQUEAK_IMAGE_FILES}"
@@ -40,9 +39,9 @@ function setup {
    echo "Setting up image.."
    setup_file="__squeak_setup.st"
    cat <<EOF> $setup_file
-   Utilities setAuthorInitials: 'OrcaSetup'.
+    Utilities setAuthorInitials: 'Setup'.
    
-	Installer squeaksource
+    Installer squeaksource
     	project: 'MetacelloRepository';
     	install: 'ConfigurationOfMetacello'. 
 	
@@ -88,24 +87,24 @@ do
 	esac
 done
 
-mkdir temp
-cd temp
+PREVIOUS_DIR=$(pwd)
+TEMP=$(mktemp -d -t squeak_installer_XXXXXX)
+
+cd $TEMP
 download
 setup
 
-DATE_STRING=`date +%Y%m%d`
+DATE_STRING=`date +%Y%m%d_%H%M%S`
 
-mkdir "lauritz_${DATE_STRING}"
-cd "lauritz_${DATE_STRING}"
-
+mkdir "squeak_${DATE_STRING}"
+cd "squeak_${DATE_STRING}"
 
 eval "mv $(ls ../*.image | head -1)" "Squeak.image"
 eval "mv $(ls ../*.changes | head -1)" "Squeak.changes"
 mv ../SqueakV41.sources ./
 
-cd ..
+mv "${TEMP}/squeak_${DATE_STRING}" $PREVIOUS_DIR/
 
-tar cfz "../lauritz${DATE_STRING}.tar.gz" "lauritz${DATE_STRING}"
+cd $PREVIOUS_DIR
 
 cd ..
-rm -rf temp
