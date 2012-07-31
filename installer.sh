@@ -72,13 +72,14 @@ then
 	usage
 fi
 
-while getopts ":v:c:r:i:" OPTION
+while getopts ":v:c:r:i:d:" OPTION
 do
 	case $OPTION in
 		v) VM_PATH="$OPTARG" ;;
 		c) CONFIG="$OPTARG" ;;
 		r) REPOSITORY="$OPTARG" ;;
         i) SQUEAK="$OPTARG" ;;
+        d) DIRECTORY="$OPTARG" ;;
 		*) usage ;;
 	esac
 done
@@ -99,7 +100,7 @@ eval "mv $(ls ../*.image | head -1)" "Squeak.image"
 eval "mv $(ls ../*.changes | head -1)" "Squeak.changes"
 mv ../SqueakV41.sources ./
 
-mv "${TEMP}/squeak_${DATE_STRING}" $PREVIOUS_DIR/
+mv "${TEMP}/squeak_${DATE_STRING}" $DIRECTORY/
 
 cd $PREVIOUS_DIR
 
