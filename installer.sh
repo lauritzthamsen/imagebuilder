@@ -22,22 +22,57 @@ function run {
 }
 
 function download {
-   if [[ -z $(ls | grep "Squeak[^\.]*\.sources") ]]; then
-      echo "Downloading current trunk image"
-      SOURCES="ftp://ftp.squeak.org/sources_files/"
-      SQUEAK_IMAGE_FILES=$(curl ${SQUEAK} | grep "Squeak.*zip" | grep -v "SqueakCore" | tail -1 | awk '{print $NF}')
-      SQUEAK_SOURCES_FILE=$(curl ${SOURCES} | grep "sources.gz" | tail -1 | awk '{print $NF}')
-      curl -O "${SOURCES}${SQUEAK_SOURCES_FILE}"
-      curl -O "${SQUEAK}${SQUEAK_IMAGE_FILES}"
-      unzip $SQUEAK_IMAGE_FILES
-      UNZIPPED_DIRECTORY=${SQUEAK_IMAGE_FILES%.zip}
-      echo $SQUEAK_IMAGE_FILES
-      if [[ -e "${UNZIPPED_DIRECTORY}" ]]; then
-        cp ${UNZIPPED_DIRECTORY}/* .
-        rm "${UNZIPPED_DIRECTORY}"
-      fi
-      gunzip Squeak*sources.gz
-   fi
+    # from https://github.com/timfel/dotfiles
+    if [[ -z $(ls | grep "Squeak[^\.]*\.sources") ]]; then
+	declare -a IMAGES
+	declare -a IMAGE_FOLDERS
+	image_idx=1
+	for i in $(curl -s $SQUEAK_SERVER | grep DIR | grep -o "href=\".*\"" | grep "$SQUEAK_WILDCARD"); do
+	    i=${i#*=}
+	    i=${i#\"}
+	    i=${i%%\"}
+	    for j in $(curl -s $SQUEAK_SERVER/$i/ | grep -o "href=\"Squeak.*zip\""); do
+		j=${j#*=}
+		j=${j#\"}
+		j=${j%%\"}
+		IMAGE_FOLDERS[image_idx]=$i
+		IMAGES[image_idx]=$j
+		image_idx=$[image_idx + 1]
+	    done
+	done
+
+	for i in `seq 1 $[image_idx - 1]`; do echo "[$i] ${IMAGES[i]}"; done
+	printf "Choose Image Index: "
+	read image_idx
+
+	source_idx=1
+	declare -a SOURCES
+	for j in $(curl -s $SQUEAK_SERVER/$SOURCE_FOLDER/ | grep -o "href=\".*gz\""); do
+	    j=${j#*=}
+	    j=${j#\"}
+	    j=${j%%\"}
+	    SOURCES[source_idx]=$j
+	    source_idx=$[source_idx + 1]
+	done
+
+	for i in `seq 1 $[source_idx - 1]`; do echo "[$i] ${SOURCES[i]}"; done
+	printf "Choose Sources Index: "
+	read source_idx
+    
+	curl -O "$SQUEAK_SERVER/${IMAGE_FOLDERS[image_idx]}${IMAGES[image_idx]}"
+	unzip ${IMAGES[image_idx]}
+    
+    # Pull Squeak out of subdirectory
+    SQUEAK_VERSION=${IMAGES[image_idx]%.zip}
+    if [[ -e "${SQUEAK_VERSION}" ]]; then
+      cp ${SQUEAK_VERSION}/* .
+      rm -r "${SQUEAK_VERSION}"
+    fi    
+	rm ${IMAGES[image_idx]}
+    
+	curl -O "$SQUEAK_SERVER/$SOURCE_FOLDER/${SOURCES[source_idx]}"
+	gunzip ${SOURCES[source_idx]}
+    fi
 }
 
 function setup {
@@ -51,12 +86,14 @@ function setup {
     	install: 'ConfigurationOfMetacello'. 
 	
 	(Smalltalk at: #ConfigurationOfMetacello) load.
+    
+    MCMcmUpdater updateFromDefaultRepository.
 
 	(Installer repository: '${REPOSITORY}')	
 		install: '${CONFIG}'.
-	(Smalltalk at: #${CONFIG}) install.
+    (Smalltalk at: #${CONFIG}) install.
 
-	MCMcmUpdater updateFromDefaultRepository.
+    SmalltalkImage current snapshot: true andQuit: true embedded: true.
 EOF
    run $1 $setup_file
 }
@@ -87,6 +124,10 @@ done
 PREVIOUS_DIR=$(pwd)
 TEMP=$(mktemp -d -t squeak_installer_XXXXXX)
 
+SQUEAK_SERVER="http://ftp.squeak.org"
+SOURCE_FOLDER="sources_files"
+SQUEAK_WILDCARD="4."
+
 cd $TEMP
 download
 setup
@@ -101,7 +142,7 @@ eval "mv $(ls ../*.changes | head -1)" "Squeak.changes"
 mv ../SqueakV41.sources ./
 
 mv "${TEMP}/squeak_${DATE_STRING}" $DIRECTORY/
-
+echo "Build available at ${DIRECTORY}/squeak_${DATE_STRING}/"
+ 
 cd $PREVIOUS_DIR
-
 cd ..
