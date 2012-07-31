@@ -24,13 +24,18 @@ function run {
 function download {
    if [[ -z $(ls | grep "Squeak[^\.]*\.sources") ]]; then
       echo "Downloading current trunk image"
-      TRUNK="ftp://ftp.squeak.org/trunk/"
       SOURCES="ftp://ftp.squeak.org/sources_files/"
-      SQUEAK_IMAGE_FILES=$(curl ${TRUNK} | grep "Squeak[0-9]\.[0-9].*zip" | tail -1 | awk '{print $NF}')
+      SQUEAK_IMAGE_FILES=$(curl ${SQUEAK} | grep "Squeak.*zip" | grep -v "SqueakCore" | tail -1 | awk '{print $NF}')
       SQUEAK_SOURCES_FILE=$(curl ${SOURCES} | grep "sources.gz" | tail -1 | awk '{print $NF}')
       curl -O "${SOURCES}${SQUEAK_SOURCES_FILE}"
-      curl -O "${TRUNK}${SQUEAK_IMAGE_FILES}"
-      unzip Squeak*zip
+      curl -O "${SQUEAK}${SQUEAK_IMAGE_FILES}"
+      unzip $SQUEAK_IMAGE_FILES
+      UNZIPPED_DIRECTORY=${SQUEAK_IMAGE_FILES%.zip}
+      echo $SQUEAK_IMAGE_FILES
+      if [[ -e "${UNZIPPED_DIRECTORY}" ]]; then
+        cp ${UNZIPPED_DIRECTORY}/* .
+        rm "${UNZIPPED_DIRECTORY}"
+      fi
       gunzip Squeak*sources.gz
    fi
 }
@@ -47,26 +52,18 @@ function setup {
 	
 	(Smalltalk at: #ConfigurationOfMetacello) load.
 
-	((Installer monticello) 
-		http: '${REPOSITORY}'
-		user: '${USERNAME}'
-		password: '${PASSWORD}')	
-		installQuietly: '${CONFIG}'.
-			
-	(Smalltalk at: #${CONFIG}) load.
+	(Installer repository: '${REPOSITORY}')	
+		install: '${CONFIG}'.
+	(Smalltalk at: #${CONFIG}) install.
 
 	MCMcmUpdater updateFromDefaultRepository.
-	
-	SystemWindow subclasses collect: [:k | k allInstances] thenDo: [:iary | iary do: [:each | each delete]].
-	
-	SmalltalkImage current snapshot: true andQuit: true.
 EOF
    run $1 $setup_file
 }
 
 function usage {
 	E_OPTERROR=65
-	echo "Usage: `basename $0` -u <USERNAME> -p <PASSWORD> -v <BUILD_VM_PATH> -c <METACELLO_CONFIGURATION> -r <MONTICELLO_REPOSITORY>"
+	echo "Usage: `basename $0` -v <BUILD_VM_PATH> -c <METACELLO_CONFIGURATION> -r <MONTICELLO_REPOSITORY> -i <IMAGE_DIRECTORY>"
 	exit $E_OPTERROR	
 }
 
@@ -75,14 +72,13 @@ then
 	usage
 fi
 
-while getopts ":u:p:v:c:r:" OPTION
+while getopts ":v:c:r:i:" OPTION
 do
 	case $OPTION in
-		u) USERNAME="$OPTARG" ;;
-		p) PASSWORD="$OPTARG" ;;
 		v) VM_PATH="$OPTARG" ;;
 		c) CONFIG="$OPTARG" ;;
 		r) REPOSITORY="$OPTARG" ;;
+        i) SQUEAK="$OPTARG" ;;
 		*) usage ;;
 	esac
 done

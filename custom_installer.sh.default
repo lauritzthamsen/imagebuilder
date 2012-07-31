@@ -5,15 +5,14 @@
 # Path to your Squeak VM 
 VM="/path/to/vm"
 
-# Monticello repository and Credentials
-REPOSITORY="http://www.squeaksource.com/SQUEAKSOURCE_REPOSITORY"
-USER=""
-PW=""
+# Monticello repository and Metacello configuration
+REPOSITORY="http://ss3.gemstone.com/ss/YOUR_REPO"
+CONFIG="ConfigurationOfXY" 
 
-# Metacello configuration that configures the image to personal preferences
-CONFIG="ConfigurationOfLauritz" 
+# Image URL 
+IMAGE="ftp://ftp.squeak.org/4.3/"
 
 ### Installer execution
 
 # Add the parameterlesss '-a' switch to create an archive of the installed files
-`dirname $0`/installer.sh -u "$USER" -p "$PW" -v "$VM" -c "$CONFIG" -r "$REPOSITORY"
+`dirname $0`/installer.sh -v "$VM" -c "$CONFIG" -r "$REPOSITORY" -i "$IMAGE"
