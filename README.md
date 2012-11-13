@@ -1,6 +1,5 @@
 ### Fresh Squeak Image
 
-Loads current sources, a trunk image and sources from [Squeak.org/trunk](ftp://ftp.squeak.org/trunk). Runs them with a specified Squeak VM to update the image and to load a Metacello configuration.
+Loads a specific trunk image with corresponding changes and specific sources from [ftp.squeak.org](ftp://ftp.squeak.org/), then runs a user's Metacello configuration with a specified VM.
 
-From [Orca](https://github.com/orcaproject/orca), but only the build script
-and adapted to load only a specific Metacello configuration.
+Based on https://github.com/timfel/dotfiles and https://github.com/timfel/dotfiles/blob/master/bin/squeak.
