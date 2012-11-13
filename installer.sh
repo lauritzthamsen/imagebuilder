@@ -22,7 +22,6 @@ function run {
 }
 
 function download {
-    # from https://github.com/timfel/dotfiles
     if [[ -z $(ls | grep "Squeak[^\.]*\.sources") ]]; then
 	declare -a IMAGES
 	declare -a IMAGE_FOLDERS
@@ -132,17 +131,18 @@ cd $TEMP
 download
 setup
 
-DATE_STRING=`date +%Y%m%d_%H%M%S`
+DATE_STRING=`date +%Y%m%d_%H%M`
+BUILD_DIR="${SQUEAK_VERSION}_${DATE_STRING}"
 
-mkdir "squeak_${DATE_STRING}"
-cd "squeak_${DATE_STRING}"
+mkdir $BUILD_DIR
+cd $BUILD_DIR
 
 eval "mv $(ls ../*.image | head -1)" "Squeak.image"
 eval "mv $(ls ../*.changes | head -1)" "Squeak.changes"
 mv ../SqueakV41.sources ./
 
-mv "${TEMP}/squeak_${DATE_STRING}" $DIRECTORY/
-echo "Build available at ${DIRECTORY}/squeak_${DATE_STRING}/"
+mv "${TEMP}/${BUILD_DIR}" $DIRECTORY/
+echo "Build available at ${DIRECTORY}/${BUILD_DIR}"
  
 cd $PREVIOUS_DIR
 cd ..
