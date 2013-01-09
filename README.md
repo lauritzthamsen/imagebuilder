@@ -1,5 +1,5 @@
 ### Fresh Squeak Image
 
-Loads a specific trunk image with corresponding changes and specific sources from [ftp.squeak.org](ftp://ftp.squeak.org/), then runs a user's Metacello configuration with a specified VM.
+Prompts for and loads an image and sources from [ftp.squeak.org](ftp://ftp.squeak.org/), then runs a user's personal Metacello configuration.
 
-Based on https://github.com/timfel/dotfiles and https://github.com/timfel/dotfiles/blob/master/bin/squeak.
+Based on https://github.com/timfel/dotfiles, more specifically: https://github.com/timfel/dotfiles/blob/master/bin/squeak.
