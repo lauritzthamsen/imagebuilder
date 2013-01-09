@@ -1,6 +1,6 @@
 #!/bin/bash
 
-### Configuration
+# ----- configure! -----
 
 # Path to your Squeak VM 
 VM="/path/to/vm"
@@ -9,13 +9,10 @@ VM="/path/to/vm"
 REPOSITORY="http://ss3.gemstone.com/ss/YOUR_REPO"
 CONFIG="ConfigurationOfXY" 
 
-# Image URL 
-IMAGE="ftp://ftp.squeak.org/WHICH_SQUEAK"
-
 # Target directory
-DIRECTORY="where/to/put/the/results"
+DIRECTORY="where/to/put/the/resulting/artifacts"
 
-### Installer execution
+# ----- command execution -----
 
 # Add the parameterlesss '-a' switch to create an archive of the installed files
 `dirname $0`/installer.sh -v "$VM" -c "$CONFIG" -r "$REPOSITORY" -i "$IMAGE" -d "$DIRECTORY"
